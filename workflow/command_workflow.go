@@ -28,22 +28,16 @@ var Command = &cobra.Command{
 		defer c.Close()
 
 		log.Printf("Getting input")
-		rawInput := "{}"
-		if len(Input) > 0 {
-			rawInput, err := base64.URLEncoding.DecodeString(Input)
-			if err != nil {
-				log.Fatal(err)
-				return
-			}
-			log.Printf("Got rawInput:[%s]\n", rawInput)
-		}
-		var jsonInput interface{}
-		err = json.Unmarshal([]byte(rawInput), &jsonInput)
+		rawInput, err := getBase64Decode(Input)
 		if err != nil {
-			log.Fatal(err)
-			return
+			// input is not base64 encoded
+			rawInput = Input
 		}
-		log.Printf("Got jsonInput:%s\n", jsonInput)
+		param, err := getJsonDecode(rawInput)
+		if err != nil {
+			log.Fatalf("Invalid json input receieved:%s detail:%s\n", rawInput, err.Error())
+		}
+		log.Printf("Got jsonInput:%s\n", param)
 
 		workflowName := Name
 		workflowID := fmt.Sprintf("%s-%s", workflowName, uuid.NewRandom().String())
@@ -53,7 +47,7 @@ var Command = &cobra.Command{
 			TaskQueue: queueName,
 		}
 		log.Printf("Starting workflow ID:%s queue:%s\n", workflowID, queueName)
-		we, err := c.ExecuteWorkflow(context.Background(), options, Name, jsonInput)
+		we, err := c.ExecuteWorkflow(context.Background(), options, Name, param)
 		if err != nil {
 			log.Fatalf("Unable to start the workflow ID:%s queue:%s error:%s\n", workflowID, queueName, err.Error())
 		}
@@ -61,6 +55,28 @@ var Command = &cobra.Command{
 		log.Printf("workflow ID:%s runID:%s\n", we.GetID(), we.GetRunID())
 		log.Println("done")
 	},
+}
+
+func getBase64Decode(input string) (string, error) {
+	if len(input) > 0 {
+		rawInput, err := base64.URLEncoding.DecodeString(input)
+		if err != nil {
+			return "", err
+		}
+		return string(rawInput), nil
+	}
+	return "", nil
+}
+
+func getJsonDecode(input string) (interface{}, error) {
+	var result interface{}
+	if len(input) > 0 {
+		err := json.Unmarshal([]byte(input), &result)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return result, nil
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.

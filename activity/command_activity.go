@@ -1,4 +1,4 @@
-package cmd
+package activity
 
 import (
 	"context"
@@ -10,18 +10,18 @@ import (
 	"go.temporal.io/sdk/client"
 )
 
+var (
+	Token  string
+	Signal string
+	Body   string
+)
+
 // signalCmd represents the signal command
-var signalCmd = &cobra.Command{
+var Command = &cobra.Command{
 	Use:   "signal",
-	Short: "signal a background check",
-	Args:  cobra.NoArgs,
+	Short: "signal an activity",
 	Run: func(cmd *cobra.Command, args []string) {
-		c, err := client.Dial(client.Options{
-			// MetricsHandler: tallyhandler.NewMetricsHandler(newPrometheusScope(prometheus.Configuration{
-			// 	ListenAddress: "0.0.0.0:8001",
-			// 	TimerType:     "histogram",
-			// })),
-		})
+		c, err := client.Dial(client.Options{})
 		if err != nil {
 			log.Fatalf("client error: %v", err)
 		}
@@ -34,14 +34,14 @@ var signalCmd = &cobra.Command{
 			return
 		}
 
-		log.Printf("Got wfid:%s, runid:%s", wfid, runid)
+		log.Printf("Got workflow ID:%s, runid:%s", wfid, runid)
 
 		// Move signalName to param
 		err = c.SignalWorkflow(
 			context.Background(),
 			wfid,
 			runid,
-			"signal-submission",
+			Signal,
 			Body,
 		)
 		if err != nil {
@@ -54,12 +54,12 @@ var signalCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(signalCmd)
-	signalCmd.Flags().StringVar(&Token, "token", "", "Token")
-	signalCmd.MarkFlagRequired("token")
-	signalCmd.Flags().StringVar(&Body, "body", "", "Body")
-	signalCmd.MarkFlagRequired("body")
-
+	Command.Flags().StringVar(&Token, "token", "", "Token")
+	Command.MarkFlagRequired("token")
+	Command.Flags().StringVar(&Body, "body", "", "Body")
+	Command.MarkFlagRequired("body")
+	Command.Flags().StringVar(&Signal, "signal", "", "Signal")
+	Command.MarkFlagRequired("signal")
 }
 
 func WorkflowFromToken(token string) (string, string, error) {

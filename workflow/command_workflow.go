@@ -47,7 +47,7 @@ var Command = &cobra.Command{
 
 		workflowName := Name
 		workflowID := fmt.Sprintf("%s-%s", workflowName, uuid.NewRandom().String())
-		queueName := fmt.Sprintf("%s-queue", Name)
+		queueName := fmt.Sprintf("%s-Queue", Name)
 		options := client.StartWorkflowOptions{
 			ID:        workflowID,
 			TaskQueue: queueName,
@@ -69,5 +69,4 @@ func init() {
 	Command.Flags().StringVar(&Name, "name", "", "Name")
 	_ = Command.MarkFlagRequired("name")
 	Command.Flags().StringVar(&Input, "input", "", "input")
-	_ = Command.MarkFlagRequired("input")
 }

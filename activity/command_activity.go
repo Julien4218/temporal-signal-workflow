@@ -55,11 +55,11 @@ var Command = &cobra.Command{
 
 func init() {
 	Command.Flags().StringVar(&Token, "token", "", "Token")
-	Command.MarkFlagRequired("token")
+	_ = Command.MarkFlagRequired("token")
 	Command.Flags().StringVar(&Body, "body", "", "Body")
-	Command.MarkFlagRequired("body")
+	_ = Command.MarkFlagRequired("body")
 	Command.Flags().StringVar(&Signal, "signal", "", "Signal")
-	Command.MarkFlagRequired("signal")
+	_ = Command.MarkFlagRequired("signal")
 }
 
 func WorkflowFromToken(token string) (string, string, error) {

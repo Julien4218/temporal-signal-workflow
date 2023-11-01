@@ -27,11 +27,16 @@ var Command = &cobra.Command{
 		}
 		defer c.Close()
 
-		rawInput, err := base64.URLEncoding.DecodeString(Input)
-		if err != nil {
-			return
+		log.Printf("Getting input")
+		rawInput := "{}"
+		if len(Input) > 0 {
+			rawInput, err := base64.URLEncoding.DecodeString(Input)
+			if err != nil {
+				log.Fatal(err)
+				return
+			}
+			log.Printf("Got rawInput:[%s]\n", rawInput)
 		}
-		log.Printf("Got rawInput:[%s]\n", rawInput)
 		var jsonInput interface{}
 		err = json.Unmarshal([]byte(rawInput), &jsonInput)
 		if err != nil {

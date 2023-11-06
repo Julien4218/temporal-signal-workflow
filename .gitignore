@@ -9,3 +9,4 @@ vendor/*
 output/*
 Release/*
 **/obj/*
+.env

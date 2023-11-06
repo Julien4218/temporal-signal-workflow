@@ -6,7 +6,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"os"
 
+	"github.com/joho/godotenv"
 	"github.com/spf13/cobra"
 	"github.com/xtgo/uuid"
 	"go.temporal.io/sdk/client"
@@ -21,7 +23,16 @@ var Command = &cobra.Command{
 	Use:   "workflow",
 	Short: "Workflow command",
 	Run: func(cmd *cobra.Command, args []string) {
-		c, err := client.Dial(client.Options{})
+		err := godotenv.Load()
+		if err != nil {
+			fmt.Printf("Error loading .env file")
+			os.Exit(1)
+		}
+
+		c, err := client.Dial(client.Options{
+			HostPort:  os.Getenv("TEMPORAL_HOSTPORT"),
+			Namespace: "default",
+		})
 		if err != nil {
 			log.Fatalf("client error: %v\n", err)
 		}

@@ -39,7 +39,7 @@ var Command = &cobra.Command{
 		defer c.Close()
 
 		log.Printf("Getting input")
-		rawInput, err := getBase64Decode(Input)
+		rawInput, err := GetBase64Decode(Input)
 		if err != nil {
 			// input is not base64 encoded
 			rawInput = Input
@@ -68,7 +68,7 @@ var Command = &cobra.Command{
 	},
 }
 
-func getBase64Decode(input string) (string, error) {
+func GetBase64Decode(input string) (string, error) {
 	if len(input) > 0 {
 		rawInput, err := base64.URLEncoding.DecodeString(input)
 		if err != nil {

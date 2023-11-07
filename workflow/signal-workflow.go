@@ -4,7 +4,6 @@ import (
 	"context"
 	"log"
 
-	"github.com/Julien4218/workflow-er-poc/models/signals"
 	"github.com/sirupsen/logrus"
 
 	"github.com/spf13/cobra"
@@ -27,10 +26,7 @@ var SignalCommand = &cobra.Command{
 		}
 		defer c.Close()
 
-		signal := signals.SlackIsIncidentSignal{
-			IsIncident: SlackIsIncidentSignal,
-		}
-		err = c.SignalWorkflow(context.Background(), WorkflowID, RunID, signals.SlackIsIncidentSignalName, signal)
+		err = c.SignalWorkflow(context.Background(), WorkflowID, RunID, "slack-is-incident-signal", SlackIsIncidentSignal)
 		if err != nil {
 			logrus.Fatal("Error sending the Signal")
 		}

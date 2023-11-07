@@ -2,7 +2,11 @@ module github.com/Julien4218/temporal-signal-workflow
 
 go 1.19
 
+replace github.com/Julien4218/workflow-er-poc => /Users/jwilkinson/GolandProjects/workflow-er-poc
+
 require (
+	github.com/Julien4218/workflow-er-poc v0.0.0
+	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/cobra v1.7.0
 	github.com/xtgo/uuid v0.0.0-20140804021211-a0b114877d4c
 	go.temporal.io/sdk v1.25.1

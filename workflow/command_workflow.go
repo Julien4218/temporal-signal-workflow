@@ -15,8 +15,9 @@ import (
 )
 
 var (
-	Name  string
-	Input string
+	Name      string
+	QueueName string
+	Input     string
 )
 
 var Command = &cobra.Command{
@@ -52,7 +53,10 @@ var Command = &cobra.Command{
 
 		workflowName := Name
 		workflowID := fmt.Sprintf("%s-%s", workflowName, uuid.NewRandom().String())
-		queueName := fmt.Sprintf("%s-Queue", Name)
+		queueName := QueueName
+		if queueName == "" {
+			queueName = fmt.Sprintf("%s-Queue", Name)
+		}
 		options := client.StartWorkflowOptions{
 			ID:        workflowID,
 			TaskQueue: queueName,
@@ -95,5 +99,6 @@ func getJsonDecode(input string) (interface{}, error) {
 func init() {
 	Command.Flags().StringVar(&Name, "name", "", "Name")
 	_ = Command.MarkFlagRequired("name")
+	Command.Flags().StringVar(&QueueName, "queue", "", "Queue")
 	Command.Flags().StringVar(&Input, "input", "", "input")
 }

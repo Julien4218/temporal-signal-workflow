@@ -7,11 +7,11 @@ This is a repo to evaluate starting and signaling a workflow without being a wor
 ### creating a workflow
 
 ```bash
-go run main.go start --name MoneyTransfer --input ewogICAiU291cmNlQWNjb3VudCI6Ijg1LTE1MCIsCiAgICJUYXJnZXRBY2NvdW50IjoiNDMtODEyIiwKICAgIkFtb3VudCI6MjUxLAogICAiUmVmZXJlbmNlSUQiOiIxMjM0NSIKfQ==
+go run cmd/temporal-send/main.go workflow --workflowID id1 --workflowType MyWorkflowType --queue QUEUE_NAME --input ""
 ```
 
 ### signaling a workflow
 
 ```bash
-go run main.go signal --token QmFja2dyb3VuZENoZWNrOnVzZXJuYW1lKzIwMjMxMDI1MTQzNEBleGFtcGxlLmNvbS8zYjgyZmE0Ni03YmI3LTQ1YmUtYTE3Yi1iMmNmOWRlMDM1MWE= --body x
+go run cmd/temporal-send/main.go signal --token QmFja2dyb3VuZENoZWNrOnVzZXJuYW1lKzIwMjMxMDI1MTQzNEBleGFtcGxlLmNvbS8zYjgyZmE0Ni03YmI3LTQ1YmUtYTE3Yi1iMmNmOWRlMDM1MWE= --signal "my-signal-name" --input ""
 ```

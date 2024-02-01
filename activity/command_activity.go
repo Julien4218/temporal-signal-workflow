@@ -21,10 +21,10 @@ func init() {
 	Command.Flags().StringVar(&Token, "token", "", "Token")
 	_ = Command.MarkFlagRequired("token")
 
-	Command.Flags().StringVar(&Input, "input", "", "Input")
-
 	Command.Flags().StringVar(&Signal, "signal", "", "Signal")
 	_ = Command.MarkFlagRequired("signal")
+
+	Command.Flags().StringVar(&Input, "input", "", "Input")
 }
 
 // signalCmd represents the signal command

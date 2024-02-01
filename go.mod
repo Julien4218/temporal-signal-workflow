@@ -6,7 +6,6 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/cobra v1.7.0
-	github.com/xtgo/uuid v0.0.0-20140804021211-a0b114877d4c
 	go.temporal.io/sdk v1.25.1
 )
 
@@ -28,6 +27,7 @@ require (
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/stretchr/objx v0.5.0 // indirect
 	github.com/stretchr/testify v1.8.4 // indirect
+	github.com/xtgo/uuid v0.0.0-20140804021211-a0b114877d4c // indirect
 	go.temporal.io/api v1.24.0 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
 	golang.org/x/net v0.14.0 // indirect

@@ -18,11 +18,6 @@ import (
 	_ "github.com/git-chglog/git-chglog/cmd/git-chglog"
 	_ "golang.org/x/tools/cmd/godoc"
 
-	// build/release.mk
-	_ "github.com/caarlos0/svu"
-	_ "github.com/goreleaser/goreleaser"
-	_ "github.com/x-motemen/gobump/cmd/gobump"
-
 	// build/test.mk
 	_ "gotest.tools/gotestsum"
 )

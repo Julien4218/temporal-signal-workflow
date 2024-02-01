@@ -2,28 +2,39 @@ package activity
 
 import (
 	"context"
-	"encoding/base64"
 	"log"
 	"path"
 
 	"github.com/spf13/cobra"
-	"go.temporal.io/sdk/client"
+
+	"github.com/Julien4218/temporal-signal-workflow/temporal"
+	"github.com/Julien4218/temporal-signal-workflow/util"
 )
 
 var (
 	Token  string
 	Signal string
-	Body   string
+	Input  string
 )
+
+func init() {
+	Command.Flags().StringVar(&Token, "token", "", "Token")
+	_ = Command.MarkFlagRequired("token")
+
+	Command.Flags().StringVar(&Input, "input", "", "Input")
+
+	Command.Flags().StringVar(&Signal, "signal", "", "Signal")
+	_ = Command.MarkFlagRequired("signal")
+}
 
 // signalCmd represents the signal command
 var Command = &cobra.Command{
 	Use:   "signal",
 	Short: "signal an activity",
 	Run: func(cmd *cobra.Command, args []string) {
-		c, err := client.Dial(client.Options{})
+		c, err := temporal.GetTemporalClient()
 		if err != nil {
-			log.Fatalf("client error: %v", err)
+			log.Fatalf("client error: %v\n", err)
 		}
 		defer c.Close()
 
@@ -36,13 +47,15 @@ var Command = &cobra.Command{
 
 		log.Printf("Got workflow ID:%s, runid:%s", wfid, runid)
 
+		param := util.GetInputParam(Input)
+
 		// Move signalName to param
 		err = c.SignalWorkflow(
 			context.Background(),
 			wfid,
 			runid,
 			Signal,
-			Body,
+			param,
 		)
 		if err != nil {
 			log.Fatalf("%s", err.Error())
@@ -53,19 +66,8 @@ var Command = &cobra.Command{
 	},
 }
 
-func init() {
-	Command.Flags().StringVar(&Token, "token", "", "Token")
-	_ = Command.MarkFlagRequired("token")
-	Command.Flags().StringVar(&Body, "body", "", "Body")
-	_ = Command.MarkFlagRequired("body")
-	Command.Flags().StringVar(&Signal, "signal", "", "Signal")
-	_ = Command.MarkFlagRequired("signal")
-}
-
 func WorkflowFromToken(token string) (string, string, error) {
-	var rawToken []byte
-
-	rawToken, err := base64.URLEncoding.DecodeString(token)
+	rawToken, err := util.GetBase64Decode(token)
 	if err != nil {
 		return "", "", err
 	}

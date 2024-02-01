@@ -23,7 +23,6 @@ func init() {
 	// Bind imported sub-commands
 	Command.AddCommand(workflow.Command)
 	Command.AddCommand(activity.Command)
-	Command.AddCommand(workflow.SignalCommand)
 }
 
 func globalInit(cmd *cobra.Command, args []string) {

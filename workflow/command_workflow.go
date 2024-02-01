@@ -2,8 +2,6 @@ package workflow
 
 import (
 	"context"
-	"encoding/base64"
-	"encoding/json"
 	"fmt"
 	"log"
 	"os"
@@ -12,13 +10,31 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/xtgo/uuid"
 	"go.temporal.io/sdk/client"
+
+	"github.com/Julien4218/temporal-signal-workflow/temporal"
+	"github.com/Julien4218/temporal-signal-workflow/util"
 )
 
 var (
-	Name      string
-	QueueName string
-	Input     string
+	WorkflowID   string
+	WorkflowType string
+	QueueName    string
+	Input        string
 )
+
+// Execute adds all child commands to the root command and sets flags appropriately.
+// This is called by main.main(). It only needs to happen once to the rootCmd.
+func init() {
+	Command.Flags().StringVar(&WorkflowID, "workflowID", "", "WorkflowID")
+
+	Command.Flags().StringVar(&WorkflowType, "workflowType", "", "WorkflowType")
+	_ = Command.MarkFlagRequired("workflowType")
+
+	Command.Flags().StringVar(&QueueName, "queue", "", "Queue")
+	_ = Command.MarkFlagRequired("queue")
+
+	Command.Flags().StringVar(&Input, "input", "", "Input")
+}
 
 var Command = &cobra.Command{
 	Use:   "workflow",
@@ -30,75 +46,29 @@ var Command = &cobra.Command{
 			os.Exit(1)
 		}
 
-		c, err := client.Dial(client.Options{
-			HostPort:  os.Getenv("TEMPORAL_HOSTPORT"),
-			Namespace: "default",
-		})
+		c, err := temporal.GetTemporalClient()
 		if err != nil {
 			log.Fatalf("client error: %v\n", err)
 		}
 		defer c.Close()
 
-		log.Printf("Getting input")
-		rawInput, err := GetBase64Decode(Input)
-		if err != nil {
-			// input is not base64 encoded
-			rawInput = Input
-		}
-		param, err := getJsonDecode(rawInput)
-		if err != nil {
-			log.Fatalf("Invalid json input receieved:%s detail:%s\n", rawInput, err.Error())
-		}
-		log.Printf("Got jsonInput:%s\n", param)
+		param := util.GetInputParam(Input)
 
-		workflowName := Name
-		workflowID := fmt.Sprintf("%s-%s", workflowName, uuid.NewRandom().String())
-		queueName := QueueName
-		if queueName == "" {
-			queueName = fmt.Sprintf("%s-Queue", Name)
+		if WorkflowID == "" {
+			WorkflowID = uuid.NewRandom().String()
 		}
+
 		options := client.StartWorkflowOptions{
-			ID:        workflowID,
-			TaskQueue: queueName,
+			ID:        WorkflowID,
+			TaskQueue: QueueName,
 		}
-		log.Printf("Starting workflow ID:%s queue:%s\n", workflowID, queueName)
-		we, err := c.ExecuteWorkflow(context.Background(), options, Name, param)
+		log.Printf("Starting workflow ID:%s type:%s queue:%s\n", WorkflowID, WorkflowType, QueueName)
+		we, err := c.ExecuteWorkflow(context.Background(), options, WorkflowType, param)
 		if err != nil {
-			log.Fatalf("Unable to start the workflow ID:%s queue:%s error:%s\n", workflowID, queueName, err.Error())
+			log.Fatalf("Unable to start the workflow ID:%s queue:%s error:%s\n", WorkflowID, QueueName, err.Error())
 		}
 
 		log.Printf("workflow ID:%s runID:%s\n", we.GetID(), we.GetRunID())
 		log.Println("done")
 	},
-}
-
-func GetBase64Decode(input string) (string, error) {
-	if len(input) > 0 {
-		rawInput, err := base64.URLEncoding.DecodeString(input)
-		if err != nil {
-			return "", err
-		}
-		return string(rawInput), nil
-	}
-	return "", nil
-}
-
-func getJsonDecode(input string) (interface{}, error) {
-	var result interface{}
-	if len(input) > 0 {
-		err := json.Unmarshal([]byte(input), &result)
-		if err != nil {
-			return nil, err
-		}
-	}
-	return result, nil
-}
-
-// Execute adds all child commands to the root command and sets flags appropriately.
-// This is called by main.main(). It only needs to happen once to the rootCmd.
-func init() {
-	Command.Flags().StringVar(&Name, "name", "", "Name")
-	_ = Command.MarkFlagRequired("name")
-	Command.Flags().StringVar(&QueueName, "queue", "", "Queue")
-	Command.Flags().StringVar(&Input, "input", "", "input")
 }
